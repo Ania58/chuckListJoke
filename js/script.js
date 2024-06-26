@@ -6,8 +6,8 @@
 
 const fetchJoke = document.getElementById('fetchJoke');
 const jokeList = document.getElementById('jokeList');
-const btnDelete = document.querySelector('btnDelete')
-let jokes = []
+const btnDelete = document.querySelector('btnDelete');
+let jokes = JSON.parse(localStorage.getItem('joke')) || [];
 
 const getJoke = () => {
     fetch('https://api.chucknorris.io/jokes/random')
@@ -17,35 +17,59 @@ const getJoke = () => {
         } return response.json()
     }
     ).then (joke => {
-        const template = `<li><p>${joke.value}</p><button class="btnDelete">Eliminar</button></li>`
-        jokeList.innerHTML += template
-        jokes.push(joke.value)
-        localStorage.setItem("joke", JSON.stringify(jokes))
-        
+        jokes.push(joke.value);
+        localStorage.setItem("joke", JSON.stringify(jokes));
+        addJoke(joke.value);
     }
         
     ).catch ((error) => {
         console.error('Error al cargar el chiste:', error);
     }) 
 }
-fetchJoke.addEventListener("click", ()=>{ 
-    getJoke(fetchJoke)
-})
 
-window.addEventListener("load", () => {
-    const chistesguardados = JSON.parse(localStorage.getItem('joke'))
-    chistesguardados.forEach(joke => {
-        const template = `<li><p>${joke}</p><button class="btnDelete">Eliminar</button></li>`
-        jokeList.innerHTML += template 
-    })
-    console.log(chistesguardados)
-})
+const addJoke = (joke) => {
+    const li = document.createElement('li');
+    li.innerHTML= `<p>${joke}</p><button class="btnDelete">Eliminar</button>`;
+    jokeList.appendChild(li);
 
-console.log(localStorage)
+    li.querySelector('.btnDelete').addEventListener('click', () => {
+        deleteJoke(joke);
+    });
+}
 
-btnDelete.addEventListener("click", ()=>{ 
-    localStorage.removeItem("joke")
-    jokeList.innerHTML = ""
-})
+
+const loadJokes = () => {
+    renderJokes();
+};
+
+const renderJokes = () => {
+    jokeList.innerHTML = '';
+    jokes.forEach(joke => {
+        addJoke(joke);
+    });
+    deleteAllJokes();
+};
+
+
+const deleteJoke = (joke) => {
+    jokes = jokes.filter(i => i !== joke);
+    localStorage.setItem('joke', JSON.stringify(jokes));
+    renderJokes();
+};
+
+
+fetchJoke.addEventListener('click', getJoke);
+window.addEventListener('load', loadJokes);
+
+const deleteAllJokes = () => {
+    const deleteAll = document.createElement('button');
+    deleteAll.textContent = 'Borrar todo';
+    deleteAll.addEventListener('click', () => {
+        jokes = [];
+        localStorage.removeItem('joke');
+        renderJokes();  
+    });
+    jokeList.appendChild(deleteAll);
+};
 
 

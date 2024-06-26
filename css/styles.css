@@ -31,7 +31,7 @@ li {
   background-color: white;
   list-style: none;
   border-radius: 3px;
-  border: solid 1px lightgrey;
+  border: 1px solid lightgrey;
   padding: 10px;
   margin: 10px;
 }
